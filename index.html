@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>KevT Budget Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #041711;
+      --bg-elevated: #0b2419;
+      --accent: #2ecc71;
+      --accent-soft: rgba(46, 204, 113, 0.15);
+      --danger: #ff4d4f;
+      --warning: #f5a623;
+      --text: #f5f5f5;
+      --muted: #9ca3af;
+      --border: #1f2933;
+      --card-radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #14532d 0, #020617 55%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
+
+    #splash-logo {
+      width: 140px;
+      height: 140px;
+      border-radius: 999px;
+      border: 2px solid rgba(148, 163, 184, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.35);
+    }
+
+    #splash-logo::before,
+    #splash-logo::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    #splash-logo::before {
+      inset: -14px;
+    }
+
+    #splash-logo::after {
+      inset: -30px;
+      border-style: dashed;
+      opacity: 0.4;
+    }
+
+    #splash-title {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #splash-subtitle {
+      margin-top: 12px;
+      font-size: 18px;
+      opacity: 0.8;
+    }
+
+    #splash-tagline {
+      margin-top: 4px;
+      font-size: 14px;
+      opacity: 0.6;
+    }
+
+    #app {
+      min-height: 100vh;
+      display: none;
+      background: radial-gradient(circle at top, #052e16 0, #020617 55%);
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      padding: 16px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .app-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .app-header-title {
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .month-nav button {
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text);
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 8px;
+    }
+
+    .pill {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .pill-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .pill-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .app-content {
+      flex: 1;
+      padding: 8px 16px 72px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: var(--card-radius);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 14px 14px 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #041711;
+      font-weight: 600;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    .budget-row,
+    .goal-row,
+    .tx-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .row-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .progress-fill-danger {
+      background: var(--danger);
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--muted);
+    }
+
+    .badge-danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .badge-warning {
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+
+    .badge-success {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 6px 10px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border-top: 1px solid rgba(148, 163, 184, 0.35);
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      padding: 4px 0;
+      border-radius: 999px;
+    }
+
+    .nav-item-active {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+    }
+
+    .nav-label {
+      display: block;
+      margin-top: 2px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 18px 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .pill-privacy {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .pill-privacy span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+    }
+
+    .tx-amount-pos {
+      color: var(--accent);
+    }
+
+    .tx-amount-neg {
+      color: var(--danger);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 9998;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 18px 18px 0 0;
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 12px 16px 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .field-input,
+    .field-select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .field-row > div {
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    input[type="file"] {
+      font-size: 11px;
+    }
+
+    .small {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+    }
+
+    .fade-in {
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- SPLASH -->
+  <div id="splash">
+    <div id="splash-logo">
+      <div style="text-align:center;">
+        <div id="splash-title">KevT</div>
+        <div id="splash-subtitle">KevT Budget Pro</div>
+        <div id="splash-tagline">Your money. Your plan.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP ROOT -->
+  <div id="app"></div>
+
+  <script>
+    /* -------------------------------------------------------
+       GLOBAL APP STATE
+    ------------------------------------------------------- */
+    const AppState = {
+      ui: {
+        currentTab: "home",
+        currentMonth: new Date().toISOString().slice(0, 7),
+        activeModal: null, // "tx", "budget", "goal", "importMap"
+        editingTransactionId: null,
+        editingBudgetCategory: null,
+        editingGoalId: null,
+        importPreview: null,
+        lastImportBatchId: null
+      },
+      transactions: {},      // id -> tx
+      budgets: {},           // month|category -> { month, category, limit }
+      goals: {},             // id -> goal
+      contributions: {},     // id -> contribution
+      recurringRules: {},    // id -> rule
+      merchantMap: {},       // normalizedMerchant -> { defaultCategory }
+      alerts: [],            // computed each render
+      analytics: {
+        lifetimeIncome: 0,
+        lifetimeExpenses: 0
+      }
+    };
+
+    const CATEGORIES = [
+      "Housing",
+      "Food & Dining",
+      "Transport",
+      "Utilities",
+      "Entertainment",
+      "Health & Fitness",
+      "Shopping",
+      "Travel",
+      "Other"
+    ];
+
+    const ALERT_TYPES = {
+      OVERSPEND: "overspend",
+      NEAR_OVERSPEND: "near_overspend",
+      MISSING_BILL: "missing_bill",
+      UPCOMING_BILL: "upcoming_bill",
+      LARGE_TX: "large_tx",
+      UNUSUAL_SPEND: "unusual_spend",
+      IMPORT_FAILED: "import_failed"
+    };
+
+    /* -------------------------------------------------------
+       INDEXEDDB
+    ------------------------------------------------------- */
+    let db;
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open("KevTBudgetProDB", 1);
+
+        request.onupgradeneeded = (event) => {
+          db = event.target.result;
+
+          if (!db.objectStoreNames.contains("transactions")) {
+            db.createObjectStore("transactions", { keyPath: "id" });
+          }
+          if (!db.objectStoreNames.contains("contributions")) {
+            db.createObjectStore("contributions", { keyPath: "id" });
+          }
+          if (!db.objectStoreNames.contains("goals")) {
+            db.createObjectStore("goals", { keyPath: "id" });
+          }
+          if (!db.objectStoreNames.contains("recurringRules")) {
+            db.createObjectStore("recurringRules", { keyPath: "id" });
+          }
+        };
+
+        request.onsuccess = (event) => {
+          db = event.target.result;
+          resolve();
+        };
+
+        request.onerror = () => reject("DB open failed");
+      });
+    }
+
+    function loadStore(storeName) {
+      return new Promise((resolve) => {
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => {
+          const map = {};
+          req.result.forEach((item) => (map[item.id] = item));
+          resolve(map);
+        };
+        req.onerror = () => resolve({});
+      });
+    }
+
+    function saveToStore(storeName, obj) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        const req = store.put(obj);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject();
+      });
+    }
+
+    function deleteFromStore(storeName, id) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject();
+      });
+    }
+
+    async function loadInitialState() {
+      AppState.transactions = await loadStore("transactions");
+      AppState.contributions = await loadStore("contributions");
+      AppState.goals = await loadStore("goals");
+      AppState.recurringRules = await loadStore("recurringRules");
+      recomputeAnalytics();
+      recomputeAlerts();
+    }
+
+    /* -------------------------------------------------------
+       UTILITIES
+    ------------------------------------------------------- */
+    function uuid() {
+      return "id-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+
+    function formatCurrency(n) {
+      return (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+    }
+
+    function normalizeMerchant(raw) {
+      if (!raw) return "";
+      let s = raw.toUpperCase();
+      s = s.replace(/[0-9]/g, " ");
+      s = s.replace(/[^\w\s]/g, " ");
+      s = s.replace(/\b(HELP|TRIP|STORE|SUPERCENTER|MARKETPLACE|MKTPLACE|PMTS|PAYMENT|ONLINE)\b/g, " ");
+      s = s.replace(/\s+/g, " ").trim();
+      return s || raw.toUpperCase();
+    }
+
+    function signatureHash(tx) {
+      const key = `${tx.normalizedMerchant}|${tx.amount}|${tx.date}`;
+      let hash = 0;
+      for (let i = 0; i < key.length; i++) {
+        hash = (hash << 5) - hash + key.charCodeAt(i);
+        hash |= 0;
+      }
+      return "h" + Math.abs(hash);
+    }
+
+    function getMonthKey(dateStr) {
+      return dateStr.slice(0, 7);
+    }
+
+    function getBudgetKey(month, category) {
+      return `${month}|${category}`;
+    }
+
+    function parseCSV(text) {
+      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      if (lines.length === 0) return { headers: [], rows: [] };
+      const headers = lines[0].split(",").map((h) => h.trim());
+      const rows = lines.slice(1).map((line) => {
+        const cols = line.split(",");
+        const obj = {};
+        headers.forEach((h, i) => (obj[h] = (cols[i] || "").trim()));
+        return obj;
+      });
+      return { headers, rows };
+    }
+
+    /* -------------------------------------------------------
+       ANALYTICS + ALERTS
+    ------------------------------------------------------- */
+    function recomputeAnalytics() {
+      let income = 0;
+      let expenses = 0;
+      Object.values(AppState.transactions).forEach((tx) => {
+        if (tx.amount > 0) income += tx.amount;
+        else expenses += tx.amount;
+      });
+      AppState.analytics.lifetimeIncome = income;
+      AppState.analytics.lifetimeExpenses = expenses;
+    }
+
+    function recomputeAlerts() {
+      const alerts = [];
+      const month = AppState.ui.currentMonth;
+
+      // budgets + overspend / near overspend
+      const monthTx = Object.values(AppState.transactions).filter(
+        (tx) => getMonthKey(tx.date) === month
+      );
+      const byCategory = {};
+      monthTx.forEach((tx) => {
+        const cat = tx.category || "Other";
+        if (!byCategory[cat]) byCategory[cat] = 0;
+        if (tx.amount < 0) byCategory[cat] += -tx.amount;
+      });
+
+      Object.entries(AppState.budgets).forEach(([key, budget]) => {
+        if (budget.month !== month) return;
+        const spent = byCategory[budget.category] || 0;
+        if (!budget.limit || budget.limit <= 0) return;
+        const ratio = spent / budget.limit;
+        if (ratio >= 1.01) {
+          alerts.push({
+            id: uuid(),
+            type: ALERT_TYPES.OVERSPEND,
+            message: `Over budget in ${budget.category}`,
+            detail: `${formatCurrency(spent)} of ${formatCurrency(budget.limit)}`
+          });
+        } else if (ratio >= 0.8) {
+          alerts.push({
+            id: uuid(),
+            type: ALERT_TYPES.NEAR_OVERSPEND,
+            message: `Close to budget in ${budget.category}`,
+            detail: `${Math.round(ratio * 100)}% of limit used`
+          });
+        }
+      });
+
+      // large transactions
+      monthTx.forEach((tx) => {
+        if (Math.abs(tx.amount) >= 500) {
+          alerts.push({
+            id: uuid(),
+            type: ALERT_TYPES.LARGE_TX,
+            message: `Large transaction: ${tx.merchant || tx.normalizedMerchant}`,
+            detail: formatCurrency(tx.amount)
+          });
+        }
+      });
+
+      // recurring rules: upcoming + missing
+      const today = new Date().toISOString().slice(0, 10);
+      const todayDay = parseInt(today.slice(8, 10), 10);
+
+      Object.values(AppState.recurringRules).forEach((rule) => {
+        if (rule.type === "bill") {
+          const dueDay = rule.dayOfMonth;
+          const monthStr = AppState.ui.currentMonth;
+          const dueDate = `${monthStr}-${String(dueDay).padStart(2, "0")}`;
+
+          const hasMatch = monthTx.some(
+            (tx) =>
+              tx.normalizedMerchant === rule.normalizedMerchant &&
+              Math.abs(tx.amount + Math.abs(rule.amount)) < 1 &&
+              tx.date >= `${monthStr}-01` &&
+              tx.date <= `${monthStr}-31`
+          );
+
+          if (!hasMatch && todayDay > dueDay + 3) {
+            alerts.push({
+              id: uuid(),
+              type: ALERT_TYPES.MISSING_BILL,
+              message: `Missing bill: ${rule.merchant}`,
+              detail: `Expected around ${dueDate} for ${formatCurrency(-Math.abs(rule.amount))}`
+            });
+          } else if (!hasMatch && todayDay <= dueDay && dueDay - todayDay <= 5) {
+            alerts.push({
+              id: uuid(),
+              type: ALERT_TYPES.UPCOMING_BILL,
+              message: `Upcoming bill: ${rule.merchant}`,
+              detail: `Due around ${dueDate} for ${formatCurrency(-Math.abs(rule.amount))}`
+            });
+          }
+        }
+      });
+
+      // unusual spending (stub: not implemented deeply, just placeholder)
+      // Could compare this month vs average, but keep simple for now.
+
+      AppState.alerts = alerts;
+    }
+
+    /* -------------------------------------------------------
+       EVENT-DRIVEN APP LOOP
+    ------------------------------------------------------- */
+    function updateStateAndRender(mutator) {
+      mutator();
+      recomputeAnalytics();
+      recomputeAlerts();
+      render();
+    }
+
+    /* -------------------------------------------------------
+       TRANSACTIONS
+    ------------------------------------------------------- */
+    async function addOrUpdateTransactionFromForm(formData) {
+      const isEdit = !!AppState.ui.editingTransactionId;
+      const id = isEdit ? AppState.ui.editingTransactionId : uuid();
+
+      const rawMerchant = formData.get("merchant") || "";
+      const normalizedMerchant = normalizeMerchant(rawMerchant);
+      const amount = parseFloat(formData.get("amount") || "0") || 0;
+      const date = formData.get("date") || new Date().toISOString().slice(0, 10);
+      const category = formData.get("category") || "Other";
+      const note = formData.get("note") || "";
+
+      const tx = {
+        id,
+        merchant: rawMerchant,
+        normalizedMerchant,
+        amount,
+        date,
+        category,
+        note,
+        signature: "",
+        importBatchId: formData.get("importBatchId") || null
+      };
+
+      tx.signature = signatureHash(tx);
+
+      // duplicate detection
+      const duplicate = Object.values(AppState.transactions).find(
+        (t) => t.signature === tx.signature && t.id !== id
+      );
+      if (!isEdit && duplicate) {
+        alert("Duplicate transaction detected. Skipping.");
+        return;
+      }
+
+      // merchant memory (simple: remember last category)
+      AppState.merchantMap[normalizedMerchant] = {
+        defaultCategory: category
+      };
+
+      await saveToStore("transactions", tx);
+
+      updateStateAndRender(() => {
+        AppState.transactions[id] = tx;
+        AppState.ui.activeModal = null;
+        AppState.ui.editingTransactionId = null;
+      });
+    }
+
+    async function deleteTransaction(id) {
+      await deleteFromStore("transactions", id);
+      updateStateAndRender(() => {
+        delete AppState.transactions[id];
+      });
+    }
+
+    /* -------------------------------------------------------
+       BUDGETS
+    ------------------------------------------------------- */
+    function setBudgetForCategory(month, category, limit) {
+      const key = getBudgetKey(month, category);
+      updateStateAndRender(() => {
+        AppState.budgets[key] = { id: key, month, category, limit };
+      });
+    }
+
+    /* -------------------------------------------------------
+       GOALS + CONTRIBUTIONS
+    ------------------------------------------------------- */
+    async function addOrUpdateGoalFromForm(formData) {
+      const isEdit = !!AppState.ui.editingGoalId;
+      const id = isEdit ? AppState.ui.editingGoalId : uuid();
+
+      const name = formData.get("name") || "Goal";
+      const target = parseFloat(formData.get("target") || "0") || 0;
+      const category = formData.get("category") || "Other";
+
+      const goal = {
+        id,
+        name,
+        target,
+        category,
+        createdAt: new Date().toISOString()
+      };
+
+      await saveToStore("goals", goal);
+
+      updateStateAndRender(() => {
+        AppState.goals[id] = goal;
+        AppState.ui.activeModal = null;
+        AppState.ui.editingGoalId = null;
+      });
+    }
+
+    function getGoalProgress(goalId) {
+      const goal = AppState.goals[goalId];
+      if (!goal) return 0;
+      let total = 0;
+      Object.values(AppState.contributions).forEach((c) => {
+        if (c.goalId === goalId) total += c.amount;
+      });
+      return { total, ratio: goal.target ? total / goal.target : 0 };
+    }
+
+    /* -------------------------------------------------------
+       RECURRING RULES
+    ------------------------------------------------------- */
+    async function addRecurringRule(rule) {
+      const id = uuid();
+      const normalizedMerchant = normalizeMerchant(rule.merchant);
+      const stored = {
+        id,
+        type: rule.type, // "bill" or "income"
+        merchant: rule.merchant,
+        normalizedMerchant,
+        amount: rule.amount,
+        dayOfMonth: rule.dayOfMonth
+      };
+      await saveToStore("recurringRules", stored);
+      updateStateAndRender(() => {
+        AppState.recurringRules[id] = stored;
+      });
+    }
+
+    /* -------------------------------------------------------
+       IMPORT ENGINE
+    ------------------------------------------------------- */
+    async function handleCSVImport(file) {
+      const text = await file.text();
+      const parsed = parseCSV(text);
+      if (!parsed.headers.length) {
+        updateStateAndRender(() => {
+          AppState.alerts.push({
+            id: uuid(),
+            type: ALERT_TYPES.IMPORT_FAILED,
+            message: "Import failed",
+            detail: "No valid CSV headers detected."
+          });
+        });
+        return;
+      }
+
+      updateStateAndRender(() => {
+        AppState.ui.importPreview = {
+          headers: parsed.headers,
+          rows: parsed.rows.slice(0, 50),
+          rawRows: parsed.rows
+        };
+        AppState.ui.activeModal = "importMap";
+      });
+    }
+
+    async function commitImport(mapping) {
+      const preview = AppState.ui.importPreview;
+      if (!preview) return;
+
+      const batchId = uuid();
+      const createdTx = [];
+
+      for (const row of preview.rawRows) {
+        const rawMerchant = row[mapping.merchant] || "";
+        const normalizedMerchant = normalizeMerchant(rawMerchant);
+        const amount = parseFloat(row[mapping.amount] || "0") || 0;
+        const date = row[mapping.date] || new Date().toISOString().slice(0, 10);
+
+        const category =
+          AppState.merchantMap[normalizedMerchant]?.defaultCategory ||
+          mapping.categoryFallback ||
+          "Other";
+
+        const tx = {
+          id: uuid(),
+          merchant: rawMerchant,
+          normalizedMerchant,
+          amount,
+          date,
+          category,
+          note: "",
+          importBatchId: batchId
+        };
+        tx.signature = signatureHash(tx);
+
+        const duplicate = Object.values(AppState.transactions).find(
+          (t) => t.signature === tx.signature
+        );
+        if (duplicate) continue;
+
+        await saveToStore("transactions", tx);
+        AppState.transactions[tx.id] = tx;
+        createdTx.push(tx);
+      }
+
+      updateStateAndRender(() => {
+        AppState.ui.importPreview = null;
+        AppState.ui.activeModal = null;
+        AppState.ui.lastImportBatchId = batchId;
+      });
+    }
+
+    async function undoLastImport() {
+      const batchId = AppState.ui.lastImportBatchId;
+      if (!batchId) return;
+      const toDelete = Object.values(AppState.transactions).filter(
+        (tx) => tx.importBatchId === batchId
+      );
+      for (const tx of toDelete) {
+        await deleteFromStore("transactions", tx.id);
+        delete AppState.transactions[tx.id];
+      }
+      updateStateAndRender(() => {
+        AppState.ui.lastImportBatchId = null;
+      });
+    }
+
+    /* -------------------------------------------------------
+       RENDER
+    ------------------------------------------------------- */
+    function render() {
+      const root = document.getElementById("app");
+      const month = AppState.ui.currentMonth;
+
+      const monthTx = Object.values(AppState.transactions).filter(
+        (tx) => getMonthKey(tx.date) === month
+      );
+      const income = monthTx.reduce((sum, tx) => (tx.amount > 0 ? sum + tx.amount : sum), 0);
+      const expenses = monthTx.reduce((sum, tx) => (tx.amount < 0 ? sum + tx.amount : sum), 0);
+
+      let content = "";
+
+      if (AppState.ui.currentTab === "home") {
+        content = renderHomeScreen(month, income, expenses, monthTx);
+      } else if (AppState.ui.currentTab === "budget") {
+        content = renderBudgetScreen(month, income, expenses, monthTx);
+      } else if (AppState.ui.currentTab === "goals") {
+        content = renderGoalsScreen(month, income, expenses);
+      } else if (AppState.ui.currentTab === "alerts") {
+        content = renderAlertsScreen(month, income, expenses);
+      } else if (AppState.ui.currentTab === "import") {
+        content = renderImportScreen(month, income, expenses);
+      } else if (AppState.ui.currentTab === "analytics") {
+        content = renderAnalyticsScreen(month, income, expenses);
+      } else {
+        content = "<div class='app-content'>Unknown tab</div>";
+      }
+
+      const nav = renderNavBar();
+
+      root.innerHTML = `
+        <div class="app-shell fade-in">
+          ${renderHeader(month, income, expenses)}
+          ${content}
+          ${nav}
+        </div>
+        ${renderActiveModal()}
+      `;
+      root.style.display = "block";
+    }
+
+    function renderHeader(month, income, expenses) {
+      const date = new Date();
+      const hour = date.getHours();
+      const greeting =
+        hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+      const [year, m] = month.split("-");
+      const monthName = new Date(`${month}-01`).toLocaleString("default", { month: "long" });
+
+      return `
+        <div class="app-header">
+          <div class="app-header-top">
+            <span>${greeting}</span>
+            <span class="tag">KevT Budget Pro</span>
+          </div>
+          <div class="app-header-title">${monthName} ${year}</div>
+          <div class="month-nav">
+            <button onclick="changeMonth(-1)">&lt; Prev</button>
+            <span style="font-size:12px; opacity:0.8;">${month}</span>
+            <button onclick="changeMonth(1)">Next &gt;</button>
+          </div>
+        </div>
+        <div class="pill-row">
+          <div class="pill">
+            <div class="pill-label">Income</div>
+            <div class="pill-value">${formatCurrency(income)}</div>
+          </div>
+          <div class="pill">
+            <div class="pill-label">Expenses</div>
+            <div class="pill-value">${formatCurrency(expenses)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHomeScreen(month, income, expenses, monthTx) {
+      const totalTx = monthTx.length;
+      const lifetimeIncome = AppState.analytics.lifetimeIncome;
+      const lifetimeExpenses = AppState.analytics.lifetimeExpenses;
+      const goalsActive = Object.keys(AppState.goals).length;
+      const merchantsMapped = Object.keys(AppState.merchantMap).length;
+
+      return `
+        <div class="app-content">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">This month</div>
+                <div class="card-subtitle">High-level overview</div>
+              </div>
+              <button class="btn btn-primary" onclick="openTransactionModal()">+ Transaction</button>
+            </div>
+            <div class="budget-row">
+              <div class="row-top">
+                <span>Total transactions</span>
+                <span>${totalTx}</span>
+              </div>
+              <div class="row-top">
+                <span>Net</span>
+                <span>${formatCurrency(income + expenses)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Lifetime</div>
+                <div class="card-subtitle">All-time stats</div>
+              </div>
+            </div>
+            <div class="budget-row">
+              <div class="row-top">
+                <span>Lifetime income</span>
+                <span>${formatCurrency(lifetimeIncome)}</span>
+              </div>
+              <div class="row-top">
+                <span>Lifetime expenses</span>
+                <span>${formatCurrency(lifetimeExpenses)}</span>
+              </div>
+              <div class="row-top">
+                <span>Goals active</span>
+                <span>${goalsActive}</span>
+              </div>
+              <div class="row-top">
+                <span>Merchants mapped</span>
+                <span>${merchantsMapped}+</span>
+              </div>
+            </div>
+            <div class="pill-privacy">
+              <span>Storage: <strong>Local only</strong></span>
+              <span>Network: <strong>None</strong></span>
+              <span>Sharing: <strong>Never</strong></span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Recent transactions</div>
+                <div class="card-subtitle">Last 5 items</div>
+              </div>
+            </div>
+            ${renderTransactionList(monthTx.slice(-5).reverse(), true)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBudgetScreen(month, income, expenses, monthTx) {
+      const byCategory = {};
+      monthTx.forEach((tx) => {
+        const cat = tx.category || "Other";
+        if (!byCategory[cat]) byCategory[cat] = 0;
+        if (tx.amount < 0) byCategory[cat] += -tx.amount;
+      });
+
+      const rows = CATEGORIES.map((cat) => {
+        const key = getBudgetKey(month, cat);
+        const budget = AppState.budgets[key] || { limit: 0 };
+        const spent = byCategory[cat] || 0;
+        const limit = budget.limit || 0;
+        const ratio = limit > 0 ? spent / limit : 0;
+        const pct = Math.min(100, Math.round(ratio * 100));
+        const over = ratio > 1.01;
+        const near = ratio >= 0.8 && ratio <= 1.01;
+
+        let badge = `<span class="badge">No limit</span>`;
+        if (limit > 0) {
+          if (over) badge = `<span class="badge badge-danger">Over</span>`;
+          else if (near) badge = `<span class="badge badge-warning">Near</span>`;
+          else badge = `<span class="badge badge-success">On track</span>`;
+        }
+
+        return `
+          <div class="budget-row">
+            <div class="row-top">
+              <span>${cat}</span>
+              <span>${formatCurrency(spent)} / ${limit ? formatCurrency(limit) : "$—"}</span>
+            </div>
+            <div class="row-bottom">
+              <span>${badge}</span>
+              <button class="btn" onclick="openBudgetModal('${cat}')">Edit</button>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill ${over ? "progress-fill-danger" : ""}" style="width:${pct}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="app-content">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Monthly Budgets</div>
+                <div class="card-subtitle">Set limits. Track every dollar.</div>
+              </div>
+            </div>
+            ${rows}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGoalsScreen(month, income, expenses) {
+      const goals = Object.values(AppState.goals);
+      const rows = goals.map((g) => {
+        const { total, ratio } = getGoalProgress(g.id);
+        const pct = Math.min(100, Math.round(ratio * 100));
+        return `
+          <div class="goal-row">
+            <div class="row-top">
+              <span>${g.name}</span>
+              <span>${formatCurrency(total)} / ${formatCurrency(g.target)}</span>
+            </div>
+            <div class="row-bottom">
+              <span class="small">Category: ${g.category}</span>
+              <button class="btn" onclick="openGoalModal('${g.id}')">Edit</button>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="app-content">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Savings Goals</div>
+                <div class="card-subtitle">Set targets. Track progress.</div>
+              </div>
+              <button class="btn btn-primary" onclick="openGoalModal()">+ Goal</button>
+            </div>
+            ${goals.length ? rows : `
+              <div class="empty-state">
+                <div class="empty-icon">🎯</div>
+                <div>No goals yet</div>
+                <div class="small">Set a savings target to get started.</div>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAlertsScreen(month, income, expenses) {
+      const alerts = AppState.alerts;
+      const rows = alerts.map((a) => {
+        let badgeClass = "badge";
+        if (a.type === ALERT_TYPES.OVERSPEND || a.type === ALERT_TYPES.MISSING_BILL) {
+          badgeClass = "badge badge-danger";
+        } else if (a.type === ALERT_TYPES.NEAR_OVERSPEND || a.type === ALERT_TYPES.UPCOMING_BILL) {
+          badgeClass = "badge badge-warning";
+        } else if (a.type === ALERT_TYPES.LARGE_TX) {
+          badgeClass = "badge badge-warning";
+        }
+        return `
+          <div class="budget-row">
+            <div class="row-top">
+              <span>${a.message}</span>
+              <span class="${badgeClass}">${a.type}</span>
+            </div>
+            <div class="row-bottom">
+              <span>${a.detail || ""}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="app-content">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Spending Alerts</div>
+                <div class="card-subtitle">We watch. You relax.</div>
+              </div>
+            </div>
+            ${alerts.length ? rows : `
+              <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <div>All clear this month!</div>
+                <div class="small">No budget overruns or issues detected.</div>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderImportScreen(month, income, expenses) {
+      return `
+        <div class="app-content">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Import Transactions</div>
+                <div class="card-subtitle">CSV / Excel from banks & apps</div>
+              </div>
+            </div>
+            <div class="empty-state">
+              <div class="empty-icon">📄</div>
+              <div>Import CSV / Excel Data</div>
+              <div class="small">
+                Works with Chase, BofA, Mint, YNAB, Excel & more.
+              </div>
+              <div style="margin-top:10px;">
+                <input type="file" accept=".csv,.tsv,.txt" onchange="onImportFileChange(event)" />
+              </div>
+              ${AppState.ui.lastImportBatchId ? `
+                <div style="margin-top:10px;">
+                  <button class="btn" onclick="undoLastImport()">Undo last import</button>
+                </div>
+              ` : ""}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAnalyticsScreen(month, income, expenses) {
+      const monthTx = Object.values(AppState.transactions).filter(
+        (tx) => getMonthKey(tx.date) === month
+      );
+      const byCategory = {};
+      monthTx.forEach((tx) => {
+        const cat = tx.category || "Other";
+        if (!byCategory[cat]) byCategory[cat] = 0;
+        if (tx.amount < 0) byCategory[cat] += -tx.amount;
+      });
+
+      const rows = Object.entries(byCategory)
+        .sort((a, b) => b[1] - a[1])
+        .map(([cat, amt]) => `
+          <div class="budget-row">
+            <div class="row-top">
+              <span>${cat}</span>
+              <span>${formatCurrency(-amt)}</span>
+            </div>
+          </div>
+        `).join("");
+
+      return `
+        <div class="app-content">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Analytics</div>
+                <div class="card-subtitle">Where your money goes</div>
+              </div>
+            </div>
+            ${rows || `
+              <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <div>No data yet</div>
+                <div class="small">Import or add transactions to see analytics.</div>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTransactionList(list, compact) {
+      if (!list.length) {
+        return `
+          <div class="empty-state">
+            <div class="empty-icon">🧾</div>
+            <div>No transactions yet</div>
+            <div class="small">Add or import to get started.</div>
+          </div>
+        `;
+      }
+
+      return list
+        .map((tx) => {
+          const amtClass = tx.amount >= 0 ? "tx-amount-pos" : "tx-amount-neg";
+          return `
+            <div class="tx-row">
+              <div class="row-top">
+                <span>${tx.merchant || tx.normalizedMerchant}</span>
+                <span class="${amtClass}">${formatCurrency(tx.amount)}</span>
+              </div>
+              <div class="row-bottom">
+                <span class="small">${tx.date} • ${tx.category || "Other"}</span>
+                ${compact ? "" : `
+                  <button class="btn" onclick="openTransactionModal('${tx.id}')">Edit</button>
+                `}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderNavBar() {
+      const tabs = [
+        { id: "home", label: "Home" },
+        { id: "analytics", label: "Analytics" },
+        { id: "goals", label: "Goals" },
+        { id: "budget", label: "Budget" },
+        { id: "alerts", label: "Alerts" },
+        { id: "import", label: "Import" }
+      ];
+
+      return `
+        <div class="nav-bar">
+          ${tabs
+            .map((t) => {
+              const active = AppState.ui.currentTab === t.id;
+              return `
+                <div class="nav-item ${active ? "nav-item-active" : ""}" onclick="switchTab('${t.id}')">
+                  <span class="nav-label">${t.label}</span>
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------
+       MODALS
+    ------------------------------------------------------- */
+    function renderActiveModal() {
+      const modal = AppState.ui.activeModal;
+      if (!modal) return "";
+
+      if (modal === "tx") return renderTransactionModal();
+      if (modal === "budget") return renderBudgetModal();
+      if (modal === "goal") return renderGoalModal();
+      if (modal === "importMap") return renderImportMappingModal();
+
+      return "";
+    }
+
+    function renderTransactionModal() {
+      const isEdit = !!AppState.ui.editingTransactionId;
+      const tx = isEdit ? AppState.transactions[AppState.ui.editingTransactionId] : null;
+
+      return `
+        <div class="modal-backdrop" onclick="closeModal(event)">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-header">
+              <div class="modal-title">${isEdit ? "Edit Transaction" : "Add Transaction"}</div>
+              <button class="btn" onclick="forceCloseModal()">Close</button>
+            </div>
+            <form class="modal-body" onsubmit="onTransactionFormSubmit(event)">
+              <div>
+                <div class="field-label">Merchant</div>
+                <input class="field-input" name="merchant" value="${tx ? tx.merchant : ""}" required />
+              </div>
+              <div class="field-row">
+                <div>
+                  <div class="field-label">Amount</div>
+                  <input class="field-input" name="amount" type="number" step="0.01" value="${tx ? tx.amount : ""}" required />
+                </div>
+                <div>
+                  <div class="field-label">Date</div>
+                  <input class="field-input" name="date" type="date" value="${tx ? tx.date : new Date().toISOString().slice(0,10)}" required />
+                </div>
+              </div>
+              <div>
+                <div class="field-label">Category</div>
+                <select class="field-select" name="category">
+                  ${CATEGORIES.map(
+                    (c) => `<option value="${c}" ${tx && tx.category === c ? "selected" : ""}>${c}</option>`
+                  ).join("")}
+                </select>
+              </div>
+              <div>
+                <div class="field-label">Note</div>
+                <input class="field-input" name="note" value="${tx ? tx.note || "" : ""}" />
+              </div>
+              <div class="modal-footer">
+                ${isEdit ? `<button type="button" class="btn btn-danger" onclick="onDeleteTransaction('${tx.id}')">Delete</button>` : ""}
+                <button type="submit" class="btn btn-primary">${isEdit ? "Save" : "Add"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBudgetModal() {
+      const cat = AppState.ui.editingBudgetCategory;
+      const month = AppState.ui.currentMonth;
+      const key = getBudgetKey(month, cat);
+      const budget = AppState.budgets[key] || { limit: "" };
+
+      return `
+        <div class="modal-backdrop" onclick="closeModal(event)">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-header">
+              <div class="modal-title">Edit Budget - ${cat}</div>
+              <button class="btn" onclick="forceCloseModal()">Close</button>
+            </div>
+            <form class="modal-body" onsubmit="onBudgetFormSubmit(event)">
+              <div>
+                <div class="field-label">Monthly limit</div>
+                <input class="field-input" name="limit" type="number" step="0.01" value="${budget.limit || ""}" />
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGoalModal() {
+      const isEdit = !!AppState.ui.editingGoalId;
+      const goal = isEdit ? AppState.goals[AppState.ui.editingGoalId] : null;
+
+      return `
+        <div class="modal-backdrop" onclick="closeModal(event)">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-header">
+              <div class="modal-title">${isEdit ? "Edit Goal" : "New Goal"}</div>
+              <button class="btn" onclick="forceCloseModal()">Close</button>
+            </div>
+            <form class="modal-body" onsubmit="onGoalFormSubmit(event)">
+              <div>
+                <div class="field-label">Name</div>
+                <input class="field-input" name="name" value="${goal ? goal.name : ""}" required />
+              </div>
+              <div>
+                <div class="field-label">Target amount</div>
+                <input class="field-input" name="target" type="number" step="0.01" value="${goal ? goal.target : ""}" required />
+              </div>
+              <div>
+                <div class="field-label">Linked category</div>
+                <select class="field-select" name="category">
+                  ${CATEGORIES.map(
+                    (c) => `<option value="${c}" ${goal && goal.category === c ? "selected" : ""}>${c}</option>`
+                  ).join("")}
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">${isEdit ? "Save" : "Create"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderImportMappingModal() {
+      const preview = AppState.ui.importPreview;
+      if (!preview) return "";
+
+      const headers = preview.headers;
+
+      return `
+        <div class="modal-backdrop" onclick="closeModal(event)">
+          <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-header">
+              <div class="modal-title">Map Columns</div>
+              <button class="btn" onclick="forceCloseModal()">Close</button>
+            </div>
+            <form class="modal-body" onsubmit="onImportMappingSubmit(event)">
+              <div>
+                <div class="field-label">Merchant column</div>
+                <select class="field-select" name="merchant">
+                  ${headers.map((h) => `<option value="${h}">${h}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field-row">
+                <div>
+                  <div class="field-label">Amount column</div>
+                  <select class="field-select" name="amount">
+                    ${headers.map((h) => `<option value="${h}">${h}</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <div class="field-label">Date column</div>
+                  <select class="field-select" name="date">
+                    ${headers.map((h) => `<option value="${h}">${h}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div class="field-label">Fallback category</div>
+                <select class="field-select" name="categoryFallback">
+                  ${CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("")}
+                </select>
+              </div>
+              <div class="small">
+                Previewing first ${preview.rows.length} rows.
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Import</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------
+       EVENT HANDLERS (DOM)
+    ------------------------------------------------------- */
+    function switchTab(tab) {
+      updateStateAndRender(() => {
+        AppState.ui.currentTab = tab;
+      });
+    }
+
+    function changeMonth(delta) {
+      updateStateAndRender(() => {
+        const [y, m] = AppState.ui.currentMonth.split("-");
+        const d = new Date(parseInt(y, 10), parseInt(m, 10) - 1 + delta, 1);
+        AppState.ui.currentMonth = d.toISOString().slice(0, 7);
+      });
+    }
+
+    function openTransactionModal(id = null) {
+      updateStateAndRender(() => {
+        AppState.ui.activeModal = "tx";
+        AppState.ui.editingTransactionId = id;
+      });
+    }
+
+    function openBudgetModal(category) {
+      updateStateAndRender(() => {
+        AppState.ui.activeModal = "budget";
+        AppState.ui.editingBudgetCategory = category;
+      });
+    }
+
+    function openGoalModal(id = null) {
+      updateStateAndRender(() => {
+        AppState.ui.activeModal = "goal";
+        AppState.ui.editingGoalId = id;
+      });
+    }
+
+    function closeModal(event) {
+      if (event.target.classList.contains("modal-backdrop")) {
+        forceCloseModal();
+      }
+    }
+
+    function forceCloseModal() {
+      updateStateAndRender(() => {
+        AppState.ui.activeModal = null;
+        AppState.ui.editingTransactionId = null;
+        AppState.ui.editingBudgetCategory = null;
+        AppState.ui.editingGoalId = null;
+        AppState.ui.importPreview = null;
+      });
+    }
+
+    function onTransactionFormSubmit(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      addOrUpdateTransactionFromForm(formData);
+    }
+
+    function onDeleteTransaction(id) {
+      if (!confirm("Delete this transaction?")) return;
+      deleteTransaction(id);
+      forceCloseModal();
+    }
+
+    function onBudgetFormSubmit(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const limit = parseFloat(formData.get("limit") || "0") || 0;
+      const cat = AppState.ui.editingBudgetCategory;
+      const month = AppState.ui.currentMonth;
+      setBudgetForCategory(month, cat, limit);
+      forceCloseModal();
+    }
+
+    function onGoalFormSubmit(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      addOrUpdateGoalFromForm(formData);
+    }
+
+    function onImportFileChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      handleCSVImport(file);
+    }
+
+    function onImportMappingSubmit(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const mapping = {
+        merchant: formData.get("merchant"),
+        amount: formData.get("amount"),
+        date: formData.get("date"),
+        categoryFallback: formData.get("categoryFallback")
+      };
+      commitImport(mapping);
+    }
+
+    /* -------------------------------------------------------
+       STARTUP
+    ------------------------------------------------------- */
+    async function startApp() {
+      await initDB();
+      await loadInitialState();
+      render();
+
+      const splash = document.getElementById("splash");
+      if (splash) {
+        splash.style.opacity = 0;
+        setTimeout(() => splash.remove(), 300);
+      }
+    }
+
+    startApp();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KevT Budget Pro</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+    background: #0b2e1f;
+    color: white;
+  }
+
+  #splash {
+    position: fixed;
+    inset: 0;
+    background: #0b2e1f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+  }
+
+  #app {
+    display: none;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div style="text-align:center;">
+    <div style="font-size:48px; font-weight:700;">KevT</div>
+    <div style="margin-top:8px; font-size:20px;">KevT Budget Pro</div>
+    <div style="margin-top:4px; opacity:0.7;">Your money. Your plan.</div>
+  </div>
+</div>
+
+<!-- MAIN APP ROOT -->
+<div id="app"></div>
+
+<script>
+/* -------------------------------------------------------
+   GLOBAL APP STATE
+------------------------------------------------------- */
+const AppState = {
+  ui: {
+    currentTab: "home",
+    currentMonth: "2026-05",
+  },
+  transactions: {},
+  budgets: {},
+  goals: {},
+  contributions: {},
+  recurringRules: {},
+  merchantMap: {},
+  alerts: []
+};
+
+/* -------------------------------------------------------
+   INDEXEDDB SETUP
+------------------------------------------------------- */
+let db;
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("KevTBudgetProDB", 1);
+
+    request.onupgradeneeded = (event) => {
+      db = event.target.result;
+
+      if (!db.objectStoreNames.contains("transactions"))
+        db.createObjectStore("transactions", { keyPath: "id" });
+
+      if (!db.objectStoreNames.contains("contributions"))
+        db.createObjectStore("contributions", { keyPath: "id" });
+
+      if (!db.objectStoreNames.contains("goals"))
+        db.createObjectStore("goals", { keyPath: "id" });
+
+      if (!db.objectStoreNames.contains("recurringRules"))
+        db.createObjectStore("recurringRules", { keyPath: "id" });
+    };
+
+    request.onsuccess = (event) => {
+      db = event.target.result;
+      resolve();
+    };
+
+    request.onerror = () => reject("DB failed to open");
+  });
+}
+
+/* -------------------------------------------------------
+   LOAD INITIAL STATE FROM DB
+------------------------------------------------------- */
+async function loadInitialState() {
+  AppState.transactions = await loadStore("transactions");
+  AppState.contributions = await loadStore("contributions");
+  AppState.goals = await loadStore("goals");
+  AppState.recurringRules = await loadStore("recurringRules");
+}
+
+function loadStore(storeName) {
+  return new Promise((resolve) => {
+    const tx = db.transaction(storeName, "readonly");
+    const store = tx.objectStore(storeName);
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      const result = {};
+      request.result.forEach((item) => (result[item.id] = item));
+      resolve(result);
+    };
+  });
+}
+
+/* -------------------------------------------------------
+   RENDER ENGINE
+------------------------------------------------------- */
+function render() {
+  const tab = AppState.ui.currentTab;
+
+  let html = "";
+
+  if (tab === "home") html = renderHome();
+  if (tab === "budget") html = renderBudget();
+  if (tab === "alerts") html = renderAlerts();
+  if (tab === "goals") html = renderGoals();
+  if (tab === "import") html = renderImport();
+
+  document.getElementById("app").innerHTML = html;
+  document.getElementById("app").style.display = "block";
+}
+
+/* -------------------------------------------------------
+   SCREEN FUNCTIONS
+------------------------------------------------------- */
+function renderHome() {
+  return `
+    <div class="fade-in" style="padding:20px;">
+      <h2>Good afternoon</h2>
+      <h3>May 2026</h3>
+      <div style="margin-top:20px;">
+        <div>INCOME $0.00</div>
+        <div>EXPENSES $0.00</div>
+      </div>
+      <div style="margin-top:40px; opacity:0.7;">
+        Merchants mapped: 554+
+      </div>
+    </div>
+  `;
+}
+
+function renderBudget() {
+  return `
+    <div class="fade-in" style="padding:20px;">
+      <h2>Monthly Budgets</h2>
+      <p>No limits set</p>
+    </div>
+  `;
+}
+
+function renderAlerts() {
+  return `
+    <div class="fade-in" style="padding:20px;">
+      <h2>Spending Alerts</h2>
+      <p>All clear this month!</p>
+    </div>
+  `;
+}
+
+function renderGoals() {
+  return `
+    <div class="fade-in" style="padding:20px;">
+      <h2>Savings Goals</h2>
+      <p>No goals yet</p>
+    </div>
+  `;
+}
+
+function renderImport() {
+  return `
+    <div class="fade-in" style="padding:20px;">
+      <h2>Import Transactions</h2>
+      <p>Upload CSV / Excel</p>
+    </div>
+  `;
+}
+
+/* -------------------------------------------------------
+   APP STARTUP SEQUENCE
+------------------------------------------------------- */
+async function startApp() {
+  await initDB();
+  await loadInitialState();
+  render();
+
+  const splash = document.getElementById("splash");
+  splash.style.opacity = 0;
+
+  setTimeout(() => {
+    splash.remove();
+  }, 300);
+}
+
+startApp();
+</script>
+
+</body>
+</html>
